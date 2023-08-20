@@ -2,59 +2,115 @@ package ru.knockstick.kraftikland;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.knockstick.metrics.Metrics;
+
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-public class Main extends JavaPlugin implements Listener {
-    public Main plugin = this;
-    public Boolean isEnabled = this.getConfig().getBoolean("plugin.enabled");
-    public double x1 = this.getConfig().getDouble("plugin.x1");
-    public double y1 = this.getConfig().getDouble("plugin.y1");
-    public double z1 = this.getConfig().getDouble("plugin.z1");
-    public float yaw1 = (float)this.getConfig().getInt("plugin.yaw1");
-    public float pitch1 = (float)this.getConfig().getInt("plugin.pitch1");
+class Main extends JavaPlugin implements Listener {
+    private Main plugin;
     
-    public double x2 = this.getConfig().getDouble("plugin.x2");
-    public double y2 = this.getConfig().getDouble("plugin.y2");
-    public double z2 = this.getConfig().getDouble("plugin.z2");
-    public float yaw2 = (float)this.getConfig().getInt("plugin.yaw2");
-    public float pitch2 = (float)this.getConfig().getInt("plugin.pitch2");
+    private FileConfiguration config;
+    private String prefix;
+    Metrics metrics;
     
-    public double x3 = this.getConfig().getDouble("plugin.x3");
-    public double y3 = this.getConfig().getDouble("plugin.y3");
-    public double z3 = this.getConfig().getDouble("plugin.z3");
-    public float yaw3 = (float)this.getConfig().getInt("plugin.yaw3");
-    public float pitch3 = (float)this.getConfig().getInt("plugin.pitch3");
+    protected HashMap<String, Float> positionOne;
+    protected HashMap<String, Float> positionTwo;
+    protected HashMap<String, Float> positionThree;
     
-    public double xSpawn = this.getConfig().getDouble("plugin.xSpawn");
-    public double ySpawn = this.getConfig().getDouble("plugin.ySpawn");
-    public double zSpawn = this.getConfig().getInt("plugin.zSpawn");
-    public float yawSpawn = (float)this.getConfig().getInt("plugin.yawSpawn");
-    public float pitchSpawn = (float)this.getConfig().getInt("plugin.pitchSpawn");
+    protected HashMap<String, Float> positionSpawn;
     
-    public String msg1 = this.getConfig().getString("plugin.msg1");
-    public String msg2 = this.getConfig().getString("plugin.msg2");
-    public String msg3 = this.getConfig().getString("plugin.msg3");
-    public String endmsg = this.getConfig().getString("plugin.endmsg");
+    protected HashMap<String, String> messages;
     
-    public String prefix = this.getConfig().getString("plugin.prefix");
+    private Boolean isEnabled;
+    
+    private void getVars() {
+        isEnabled = config.getBoolean("plugin.enabled");
+        positionOne.put("x1", 
+        		(float)config.getDouble("plugin.x1"));
+        positionOne.put("y1", 
+        		(float)config.getDouble("plugin.y1"));
+        positionOne.put("z1", 
+        		(float)config.getDouble("plugin.z1"));
+        positionOne.put("yaw1", 
+        		(float)config.getDouble("plugin.yaw1"));
+        positionOne.put("pitch1", 
+        		(float)config.getDouble("plugin.pitch1")); 
+        
+        positionTwo.put("x2", 
+        		(float)config.getDouble("plugin.x2"));
+        positionTwo.put("y2", 
+        		(float)config.getDouble("plugin.y2"));
+        positionTwo.put("z2", 
+        		(float)config.getDouble("plugin.z2"));
+        positionTwo.put("yaw2", 
+        		(float)config.getDouble("plugin.yaw2"));
+        positionTwo.put("pitch2", 
+        		(float)config.getDouble("plugin.pitch2"));
+        
+        positionThree.put("x3", 
+        		(float)config.getDouble("plugin.x3"));
+        positionThree.put("y3", 
+        		(float)config.getDouble("plugin.y3"));
+        positionThree.put("z3", 
+        		(float)config.getDouble("plugin.z3"));
+        positionThree.put("yaw3", 
+        		(float)config.getDouble("plugin.yaw3"));
+        positionThree.put("pitch3", 
+        		(float)config.getDouble("plugin.pitch3"));
+        
+        positionSpawn.put("xSpawn", 
+        		(float)config.getDouble("plugin.xSpawn"));
+        positionSpawn.put("ySpawn", 
+        		(float)config.getDouble("plugin.ySpawn"));
+        positionSpawn.put("zSpawn", 
+        		(float)config.getDouble("plugin.zSpawn"));
+        positionSpawn.put("yawSpawn", 
+        		(float)config.getDouble("plugin.yawSpawn"));
+        positionSpawn.put("pitchSpawn", 
+        		(float)config.getDouble("plugin.pitchSpawn")); 
+        
+        messages.put("msg1", 
+        		config.getString("plugin.msg1"));
+        messages.put("msg2", 
+        		config.getString("plugin.msg2"));
+        messages.put("msg3", 
+        		config.getString("plugin.msg3"));
+        messages.put("endmsg", 
+        		config.getString("plugin.endmsg"));
+        
+        prefix = config.getString("plugin.prefix");
+    }
     
     @SuppressWarnings("unused")
 	@Override
-    public void onEnable() {
-        this.plugin = this;
-        this.saveDefaultConfig();
-        this.getLogger().info("KraftikLand QuickGuide started!");
-        this.getLogger().info("The plugin is made by the FriendWorld Network administration with love <3");
-        this.getLogger().info("Our Contacts: https://github.com/FriendWorld-Network, Discord: https://discord.friendworld.ru/");
-        this.getServer().getPluginManager().registerEvents(this, this);
+	public void onEnable() {
+        plugin = this;
+        plugin.saveDefaultConfig();
+        plugin.getLogger().info("KraftikLand QuickGuide started!");
+        plugin.getLogger().info("The plugin is made by the FriendWorld Network administration with love <3");
+        plugin.getLogger().info("Our Contacts: https://github.com/FriendWorld-Network, Discord: https://discord.friendworld.ru/");
+        
+        config = plugin.getConfig();
+        getVars();
+        
+        plugin.getServer().getPluginManager().registerEvents(this, this);
         int pluginId = 14702;
-        Metrics metrics = new Metrics(this, pluginId);
+        metrics = new Metrics(this, pluginId);
+    }
+    
+    @Override
+    public void onDisable() {
+    	config = null;
+    	metrics = null;
+    	plugin = null;
     }
     
     @EventHandler
@@ -64,21 +120,53 @@ public class Main extends JavaPlugin implements Listener {
             public void run() {
                 if(p.hasPlayedBefore() == false) {
                     try {
-                        p.teleport(new Location(Bukkit.getWorld("world"), x1, y1, z1, yaw1, pitch1));
-                        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-                        p.sendMessage(prefix + " " + msg1);
+                        p.teleport(new Location(
+                        		Bukkit.getWorld("world"), 
+                        		positionOne.get("x1"), 
+                        		positionOne.get("y1"), 
+                        		positionOne.get("z1"), 
+                        		positionOne.get("yaw1"), 
+                        		positionOne.get("pitch1")));
+                        
+                        p.playSound(p.getLocation(), 
+                        		Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
+                        p.sendMessage(prefix + " " + messages.get("msg1"));
                         Thread.sleep(4000);
-                        p.teleport(new Location(Bukkit.getWorld("world"), x2, y2, z2, yaw2, pitch2));
-                        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-                        p.sendMessage(prefix + " " + msg2);
+                        p.teleport(new Location(
+                        		Bukkit.getWorld("world"), 
+                        		positionTwo.get("x2"), 
+                        		positionTwo.get("y2"),
+                        		positionTwo.get("z2"), 
+                        		positionTwo.get("yaw2"), 
+                        		positionTwo.get("pitch2")));
+                        
+                        p.playSound(p.getLocation(), 
+                        		Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
+                        p.sendMessage(prefix + " " + messages.get("msg2"));
                         Thread.sleep(4000);
-                        p.teleport(new Location(Bukkit.getWorld("world"), x3, y3, z3, yaw3, pitch3));
-                        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-                        p.sendMessage(prefix + " " + msg3);
+                        p.teleport(new Location(
+                        		Bukkit.getWorld("world"), 
+                        		positionThree.get("x3"),
+                        		positionThree.get("y3"), 
+                        		positionThree.get("z3"), 
+                        		positionThree.get("yaw3"), 
+                        		positionThree.get("pitch3")));
+                        
+                        p.playSound(p.getLocation(), 
+                        		Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
+                        p.sendMessage(prefix + " " + messages.get("msg3"));
                         Thread.sleep(4000);
-                        p.teleport(new Location(Bukkit.getWorld("world"), xSpawn, ySpawn, zSpawn, yawSpawn, pitchSpawn));
-                        p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
-                        p.sendMessage(prefix + " " + endmsg);
+                        p.teleport(new Location(
+                        		Bukkit.getWorld("world"), 
+                        		positionSpawn.get("xSpawn"), 
+                        		positionSpawn.get("ySpawn"), 
+                        		positionSpawn.get("zSpawn"), 
+                        		positionSpawn.get("yawSpawn"), 
+                        		positionSpawn.get("pitchSpawn")));
+                        
+                        p.playSound(p.getLocation(), 
+                        		Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0);
+                        p.sendMessage(prefix + " " + messages.get("endmsg"));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -88,7 +176,5 @@ public class Main extends JavaPlugin implements Listener {
         if (isEnabled == true) {
         	thread.start();
         }
-        
     }
-
 }
